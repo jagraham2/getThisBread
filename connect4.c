@@ -15,7 +15,7 @@ struct player{
 
 
 void displayBoard(player board[N][M]){
-    for (int i = 0; i<N; i++){
+    for (int i = 1; i<=N; i++){
           printf(" %d", i);
      }
         printf("\n");
@@ -123,7 +123,6 @@ bool findWinner(player board[N][M], int symbol){//<---------make dynamic
 
 
 bool insert(player board[N][M], player player){////<---------make dynamic
-  printf("INSERTING at %d\n", player.col);
   board[player.row][player.col]=player;
   bool win = findWinner(board, player.symbol);
   displayBoard(board);
@@ -133,18 +132,25 @@ bool insert(player board[N][M], player player){////<---------make dynamic
 
 int main(void)
 {
-
-    int gameChoice;
+    char input[1] = "0";
+    int gameChoice = 0;
     int playerTurn = 0;
     int winner = 0;
     int P1Wins = 0;
     int P2Wins = 0;
     int rounds = 0;
-
-
     printf("******HELLO WELCOME TO CONNECT 4******\n");
+
     printf("Press 1 for single player or 2 for two player!\n");
-    scanf("%d", &gameChoice);///---------------------------------------------------make error message
+    scanf(" %s", input);
+
+    while( (atoi(input) != 1) && (atoi(input) !=2) ){
+      printf("ERROR: Invalid input\n");
+      printf("Press 1 for single player or 2 for two player!\n");
+      scanf("%s", input);
+    }
+
+    gameChoice = atoi(input);
     printf("choose your board size!\n");
     scanf("%d %d", &N, &M);//------------------------------------------------------make error message
     start:
@@ -180,21 +186,24 @@ int main(void)
            else if(x == 1){//if it is player 1's turn
                 playerTurn = 1;
                 playerSymbol = 1;
+                char input[1] = "0";
                 int location;
                  printf("player 1's turn\n");
                  player1:
-                 printf("Choose row number where you want to insert (0-6)\n");
-                 scanf("%d", &location);
-                 if (rowsOpen[location]<0||location>6||location<0){//<------needs dynamic boundary
-                   printf("ERROR INVALID INPUT TRY AGAIN\n");
-                   goto player1;
+                 printf("Choose row number where you want to insert (1-%d)\n", N);
+                 scanf("%s", input);
+                 while( (atoi(input) > N ) || atoi(input)<=0 ){
+                   printf("ERROR: Invalid input\n");
+                   printf("Choose row number where you want to insert (1-%d)\n", N);
+                   scanf("%s", input);
                  }
+                 location = atoi(input)-1;
                  row = rowsOpen[location];
                  player new_player;
                  new_player.col = location;
                  new_player.row = row;
                  new_player.symbol = playerSymbol;
-                 bool win = insert(board, new_player);//<-----watch this line for spontaneos errors
+                 bool win = insert(board, new_player);
              		 rowsOpen[location]--;
              			if (win == 1){//-----------------------------------------------------end of round
                     rounds++;
@@ -212,15 +221,19 @@ int main(void)
            else if(x == 2){//if it is player two turn
                 playerTurn = 2;
                 playerSymbol = 2;
+                char input[1] = "0";
                 int location;
                  printf("player 2's turn\n");
                  player2:
                  printf("Choose row number where you want to insert (0-6)\n");
-                 scanf("%d", &location);
-                 if (rowsOpen[location]<0||location>6||location<0){////<---------needs dynamic boundary
-                   printf("ERROR INVALID INPUT TRY AGAIN\n");
-                   goto player2;
+                 scanf("%s", input);
+                 while( (atoi(input) > N ) || atoi(input)<=0 ){
+                   printf("ERROR: Invalid input\n");
+                   printf("Choose row number where you want to insert (1-%d)\n", N);
+                   scanf("%s", input);
                  }
+                 location = atoi(input)-1;
+
                  row = rowsOpen[location];
                  player new_player;
                  new_player.col = location;
