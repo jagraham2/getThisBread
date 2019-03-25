@@ -4,8 +4,11 @@
 #include <math.h>
 #include <ctype.h>
 #include <stdbool.h>
-int N;
-int M;
+#include <string.h>
+#include "scanner.c"
+#include "scanner.h"
+int N;//-------------------------------------------------rows
+int M;//------------------------------------------------columns
 typedef struct player player;
 struct player{
   int symbol;
@@ -13,199 +16,298 @@ struct player{
   int col;
 };
 
+void displayBoard(player** board){
 
-void displayBoard(player board[N][M]){
-    for (int i = 1; i<=N; i++){
-          printf(" %d", i);
-     }
-        printf("\n");
-        for(int x = 0; x<N; x++){
+  printf("\n");
+  printf("\n");
+
+        for(int x = -1; x<N; x++){//-------------------printing table
             for(int y = 0; y<M; y++){
-                printf("|%d", board[x][y].symbol);
+                if (x==-1) {
+                  if(y<9){
+                  printf("| %d ", y);
+                  }
+                  if(y>=9){
+                    if(y>=99){
+                      printf("|%d", y);
+                    }
+                    else
+                    printf("| %d", y);
+
+                  }
+
+
+                }
+                 else
+                  printf("| %d ", board[x][y].symbol);
+                  //printf("| %d ", y);
             }
             puts("|");
             printf("_");
-            for (int i = 0; i<N; i++){
-                  printf("__");
-             }
+            if(N==M){
+              for (int i = 0; i<N+N; i++){
+                    printf("__");
+               }
+           }
+           else if (N>M||N<M){
+             for (int i = 0; i<M+M; i++){
+                   printf("__");
+              }
+           }
              printf("\n");
-        }
+        }//-----------------------------------------printing table
 }
 
-bool findWinner(player board[N][M], int symbol){//<---------make dynamic
+int findWinner(player** board, int symbol, int *rowsOpen){//<---------make dynamic
   int counter = 0;
+  int rightUpCont = 0;
+  int rightDwnCont = 0;
+  int dwnCount = 0;
+ //Loop through entire table
   for (int x = 0; x<N; x++){
     for (int y=0; y<M; y++){
+      //If current player symbol is the same as the one in the table..
       if (board[x][y].symbol == symbol){
-          for (counter = 0; counter < 4; counter++){//right
+        //Check 4-in-a-row (DIRECTION RIGHT)
+          for (counter = 0; counter < 4; counter++){//-----------------------------------------right
+            //  printf("Right count : %d\n", counter);
+               if ( y+counter<M ){
+                   if (board[x][y+counter].symbol==symbol) {
+                     continue;
+                   }
+                   else{
+                     break;
+                   }
+               }
+               else{
+                 break;
+               }
 
-            if (board[x][y+1+counter].symbol == symbol && (y<=N)) {//<---------make dynamic
-
-              continue;
-            }
-            else{
-              break;
-            }
         }
-        if (counter == 3){
-          printf("Player %d won!\n", symbol);
+        if (counter == 4){//------------------------------------------------------------if 4 right
+          printf("---------------Player %d won! (because of right)----------------\n", symbol);
         	return 1;
-          //finish the game
+          //--------------------------------------------------------------------finish the game
         }
         else{
-          counter = 0;
+          counter = 0;//------------------------------------------------------------------if not
         }
+        //Check 4-in-a-row (DIRECTION RIGHT-UP)
+        for (rightUpCont = 0; rightUpCont < 4; rightUpCont++){//---------------------------------------right up
+           if ( x-rightUpCont>=0 && y+rightUpCont<N){
+             //printf("did i get here..?");
+               if (board[x-rightUpCont][y+rightUpCont].symbol==symbol) {
+                // printf("This is 1\n");
+                 continue;
+               }
+               else{
+                // printf("This is  2\n");
+                 break;
+               }
+           }
+           else{
+             break;
+           }
 
-        for (counter = 0; counter < 4; counter++){//---------right up
-            if (board[x-1-counter][y+1+counter].symbol==symbol && (x>=0) && (y<=N)) {//<---------make dynamic
-              continue;
+        }
+        if (rightUpCont == 4){//------------------------------------------------if 4 right up
+          printf("----------------Player %d won! (because RIGHTUP)----------------\n", symbol);
+           return 1;
+          //-----------------------------------------------------------finish the game
+        }
+        else{
+          rightUpCont = 0;//-----------------------------------------------------if not
+        }
+         for (rightDwnCont = 0; rightDwnCont < 4; rightDwnCont++){//---------------------------------------right down
+           //printf("Right down count : %d\n", rightDwnCont);
+            if ( x+rightDwnCont<M && y+rightDwnCont<N){
+                if (board[x+rightDwnCont][y+rightDwnCont].symbol==symbol) {
+                  continue;
+
+                }
+                else{
+                  break;
+                }
             }
             else{
               break;
             }
+
+
         }
-    /*
-           0     1     2     3
-      0  _____|__*__|_____|_____
-      1  _____|_____|_____|_____
-      2  _____|_____|_____|_____
-      3  _____|_____|_____|_____|*/
-        if (counter == 3){
-          printf("Player %d won!\n", symbol);
+        if (rightDwnCont == 4){//--------------------------------------------------------if 4 right down
+          printf("---------------Player %d won! (because of rightDOWN)----------------\n", symbol);
            return 1;
-          //finish the game
+          //-----------------------------------------------------finish the game
         }
         else{
-          counter = 0;
+
+          rightDwnCont = 0;//---------------------------------------------------------------if not
         }
-         for (counter = 0; counter < 4; counter++){//---------right down
-            if (board[x+1+counter][y+1+counter].symbol==symbol && (x<=M) && (y<=N)) {
+
+        for (dwnCount = 0; dwnCount < 4; dwnCount++){//------------------------------------------down
+        //  printf("down count : %d\n", dwnCount);
+          if (x+dwnCount < M){
+            if (board[x+dwnCount][y].symbol==symbol) {
               continue;
+
             }
             else{
               break;
             }
+          }
+          else{
+            break;
+          }
+
         }
-        if (counter == 3){
-          printf("Player %d won!\n", symbol);
+        if (dwnCount == 4){//---------------------------------------------------------if 4 down
+          printf("----------------Player %d won! (because of DOWN)----------------\n", symbol);
            return 1;
-          //finish the game
+          //-------------------------------------------------------finish the game
         }
         else{
-          counter = 0;
+          dwnCount = 0;//-------------------------------------------------------------if not
         }
-        for (counter = 0; counter < 4; counter++){//---------down
-
-            if (board[x+1+counter][y].symbol==symbol && (x<=M)) {
-
-              continue;
-            }
-            else{
-              break;
-            }
-        }
-        if (counter == 3){
-          printf("Player %d won!\n", symbol);
-           return 1;
-          //finish the game
-        }
-        else{
-          counter = 0;
-        }
-
       }
     }
   }
+  int tieChecker = 1;
+  for (int i = 0; i<M; i++){
+    if(rowsOpen[i] < 0 ){
+      continue;
+    }
+    else{
+      //printf("We found a %d at index %d in rowOpen..\n", rowsOpen[i], i);
+      tieChecker = 0;
+      break;
+    }
+  }//tie
+  if (tieChecker == 1){
+    printf("------------------------ITS A TIE--------------------------\n");
+    return 2;//------------------------------------------------------------there is a tie
+  }
+  //  else{
+  //
+  // //   //----------------------------------------------------------not a tie, and no 4-in-a-row yet
+  // }
+
   return 0;
 }
 
-
-
-
-bool insert(player board[N][M], player player){////<---------make dynamic
+void insert(player** board, player player){
+//printf("HEYYYYYYYYYYYYYYYYYYYYYYYYYY 111111\n");
+//printf("Row is %d \n", player.row);
+//printf("Col is %d \n", player.col);
   board[player.row][player.col]=player;
-  bool win = findWinner(board, player.symbol);
-  displayBoard(board);
-  return win;
 }
-
 
 int main(void)
 {
     char input[1] = "0";
+    //int test;
     int gameChoice = 0;
     int playerTurn = 0;
     int winner = 0;
     int P1Wins = 0;
     int P2Wins = 0;
-    int rounds = 0;
+    int rounds = 1;
+
     printf("******HELLO WELCOME TO CONNECT 4******\n");
-
-    printf("Press 1 for single player or 2 for two player!\n");
-    scanf(" %s", input);
-
-    while( (atoi(input) != 1) && (atoi(input) !=2) ){
+    printf("Press 1 for single player or 2 for two player!(incorrect input will cause the program to exit)\n");
+    gameChoice = readInt(stdin);
+  if (gameChoice < 1 || gameChoice>2){//--------------------------------error message protocol game mode this is good make sure user knows what is going on
       printf("ERROR: Invalid input\n");
-      printf("Press 1 for single player or 2 for two player!\n");
-      scanf("%s", input);
+      return 0;//-------------------------------------------------------------error message protocol game mode this is good make sure user knows whats going on
     }
 
-    gameChoice = atoi(input);
-    printf("choose your board size!\n");
-    scanf("%d %d", &N, &M);//------------------------------------------------------make error message
-    start:
-    if (rounds>0){
-      printf("*****ROUND %d *****\n ", rounds);
+  if(gameChoice==2){//--------------------------------------------------------------------------------------------------two player
+    printf("Choose number of rows and colums(rows and columns cannot be below 4) incorret input will exit the game\n");
+    N = readInt(stdin);//---------------------------------------------------error message protocol invalid rows and col
+    M = readInt(stdin);
+
+    while(N<4||M<4){
+      printf("ERROR: Invalid input\n");
+      return 0;
     }
-    player board[N][M];
+
+     printf("THIS IS N %d\n", N);
+     printf("THIS IS M %d\n", M);
+    start://keep this here so it re ints the board
+    if (rounds>1){
+      printf("****************ROUND %d ****************\n", rounds);
+      printf("Player 1 score:  %d\n", P1Wins);
+      printf("Player 2 score:  %d\n", P2Wins);
+    }
+    player **board = malloc(N *  sizeof(player));
+      for(int i = 0; i< N; i++){
+        board[i] = malloc(M * sizeof(player));
+      }
+
+    //player board[N][M];//-------------------------------------------------------board init
+
     for(int x = 0; x<N; x++){
         for(int y = 0; y<M; y++){
           board[x][y].symbol = '\0' ;
         }
       }
 
-    if(gameChoice==2){
 
         while(winner != 1){
-
         int playerSymbol = 0;
         int x = 0;
         int row;
-        int rowsOpen[N];
-        for (int i = 0; i<N; i++){
-           rowsOpen[N]= 'M' ;
+
+        //int rowsOpen[M];//----------------malloc
+        int *rowsOpen = malloc(M *  sizeof(int));
+
+        for (int i = 0; i<M; i++){
+           rowsOpen[i]= N-1 ;
+
         }
+
           top:
-            if(x == 0){//if no one has gone
-             playerSymbol = 0;
+            if(x == 0){//----------------------------------if no one has gone
+             //playerSymbol = 0;
+
               displayBoard(board);
               x=1;
              goto top;
             }
-
-           else if(x == 1){//if it is player 1's turn
+           else if(x == 1){//---------------------------------if it is player 1's turn
                 playerTurn = 1;
                 playerSymbol = 1;
-                char input[1] = "0";
+              //  char input[1] = "0";//
+                int input;
                 int location;
                  printf("player 1's turn\n");
                  player1:
-                 printf("Choose row number where you want to insert (1-%d)\n", N);
-                 scanf("%s", input);
-                 while( (atoi(input) > N ) || atoi(input)<=0 ){
-                   printf("ERROR: Invalid input\n");
-                   printf("Choose row number where you want to insert (1-%d)\n", N);
-                   scanf("%s", input);
+                 printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                // scanf("%s", input);
+                 input = readInt(stdin);
+                 while((input> M ) || input<0 || rowsOpen[(input)]<0){
+                   printf("ERROR: Input out of range\n");
+                   printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                   input = readInt(stdin);
                  }
-                 location = atoi(input)-1;
+                 location = (input);
+                // printf("location %d\n ", location);//-------------------------------------part of insertion protocol
                  row = rowsOpen[location];
                  player new_player;
                  new_player.col = location;
-                 new_player.row = row;
+                 new_player.row = row;//----------------------maybe
                  new_player.symbol = playerSymbol;
-                 bool win = insert(board, new_player);
-             		 rowsOpen[location]--;
-             			if (win == 1){//-----------------------------------------------------end of round
+
+                 // int win = insert(board, new_player,rowsOpen);
+                 // //printf("HEYYYYYYYYYYYYYYYYYYYYYYYYYY 111111\n");
+             		 // rowsOpen[location]--;//-------------------------------------part of insertion protocol
+                 insert(board, new_player);
+                 rowsOpen[location]--;
+                 int win = findWinner(board, new_player.symbol, rowsOpen);
+                 //printf("WINN IS %d\n", win);
+                 displayBoard(board);
+                 //here is where you would displayBoard
+                  if (win == 1){//-----------------------------------------------------end of round
                     rounds++;
                     P1Wins++;
                         if(P1Wins==2){//------------------------winner of 2 out 3 rounds
@@ -213,34 +315,41 @@ int main(void)
                         }
                     goto start;
                   }
-
+                  if(win == 2){//------------------------------------------
+                    rounds++;
+                    goto start;
+                  }
                   x=2;
                   goto top;
-
             }
-           else if(x == 2){//if it is player two turn
+           else if(x == 2){//----------------------------------------------if it is player two turn
                 playerTurn = 2;
                 playerSymbol = 2;
-                char input[1] = "0";
+              //  char input[1] = "0";
+                int input;
                 int location;
                  printf("player 2's turn\n");
                  player2:
-                 printf("Choose row number where you want to insert (0-6)\n");
-                 scanf("%s", input);
-                 while( (atoi(input) > N ) || atoi(input)<=0 ){
-                   printf("ERROR: Invalid input\n");
-                   printf("Choose row number where you want to insert (1-%d)\n", N);
-                   scanf("%s", input);
+                 printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                 input = readInt(stdin);
+                 while( ((input) > M ) || (input)<0 || rowsOpen[(input)]<0){//-------------------------------------error protocol
+                   printf("ERROR: input out of range\n");
+                   printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                   input = readInt(stdin);
                  }
-                 location = atoi(input)-1;
+                 location = (input);//-----------------------------------------------------------error protol
 
-                 row = rowsOpen[location];
+                 row = rowsOpen[location];//-------------------------------------part of insertion protocol
                  player new_player;
                  new_player.col = location;
                  new_player.row = row;
                  new_player.symbol = playerSymbol;
-             		 bool win = insert(board, new_player);
+
+                 insert(board, new_player);
                  rowsOpen[location]--;
+                 int win = findWinner(board, new_player.symbol, rowsOpen);
+                 //printf("WINN IS %d\n", win);
+                 displayBoard(board);//-------------------------------------part of insertion protocol
              			if (win == 1){//-------------------------------------------------------------------------------------end of round
                     rounds++;
                     P2Wins++;
@@ -248,18 +357,74 @@ int main(void)
                       goto end;
                     }
                     goto start;
-
                   }
-
+                  if(win == 2){//------------------------------------------
+                    rounds++;
+                    goto start;
+                  }
                  x=1;
                  goto top;
             }
-
         }
         end:
-        printf("Thank you for Playing....Goodbye!");
+        printf("Player 1 score:  %d\n", P1Wins);
+        printf("Player 2 score:  %d\n", P2Wins);
+        if(P1Wins>P2Wins){
+          printf("Player 1 Wins the GAME!\n");
+        }
+        else printf("Player 2 Wins the GAME!\n");
+        printf("Thank you for Playing....Goodbye!");//-------------------------------end of game
         return 0;
     }
-
-    return 0;
+//     if(gameChoice==1){//-------------------------------------------------------------------------------------------------------------------one player
+//         printf("----------------1 Player mode---------------\n");
+//         printf("Choose number of rows and colums(must have a space in between)\n");
+//         scanf("%s ", input1);//---------------------------------------------------error message protocol invalid rows and col
+//         scanf("%[^\n]s", input2);
+//
+//         while( atoi(input1) < 4 || atoi(input2) < 4){
+//           printf("ERROR: Invalid input\n");
+//           return 0;
+//         }//----------need to malloc-------------------------------------------------------------------------------error message protocol invalid rows and col
+//
+//          N = atoi(input1);
+//          printf("THIS IS N %d\n", N);
+//          M = atoi(input2);
+//          printf("THIS IS M %d\n", M);
+//         start1://keep this here so it re ints the board
+//         if (rounds>1){
+//           printf("****************ROUND %d ****************\n", rounds);
+//           printf("Player 1 score:  %d\n", P1Wins);
+//           printf("Player 2 score:  %d\n", P2Wins);
+//         }
+//         player board[N][M];//-------------------------------------------------------board init
+//         for(int x = 0; x<N; x++){
+//             for(int y = 0; y<M; y++){
+//               board[x][y].symbol = '\0' ;
+//             }
+//           }
+//         while(winner != 1){
+//
+//         int playerSymbol = 0;
+//         int x = 0;
+//         int row;
+//         int rowsOpen[N];
+//         for (int i = 0; i<N; i++){
+//            rowsOpen[i]= N ;
+//         }
+//       //  top:
+//           //if(x == 0){//----------------------------------if no one has gone
+//            playerSymbol = 0;
+//             displayBoard(board);
+//             return 0;
+//             winner == 1;
+//
+//             //x=1;
+//            //goto top;
+//          //}
+//    }
+//
+//
+//     return 0;
+// }
 }
