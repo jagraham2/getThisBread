@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -221,7 +220,7 @@ int main(void)
       return 0;//-------------------------------------------------------------error message protocol game mode this is good make sure user knows whats going on
     }
 
-  if(gameChoice==2){//--------------------------------------------------------------------------------------------------two player
+  if(gameChoice==2 || gameChoice ==1){//--------------------------------------------------------------------------------------------------two player
     printf("Choose number of rows and colums(rows and columns cannot be below 4) incorret input will exit the game\n");
     N = readInt(stdin);//---------------------------------------------------error message protocol invalid rows and col
     M = readInt(stdin);
@@ -282,12 +281,12 @@ int main(void)
                 int location;
                  printf("player 1's turn\n");
                  player1:
-                 printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                 printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M-1);
                 // scanf("%s", input);
                  input = readInt(stdin);
-                 while((input> M ) || input<0 || rowsOpen[(input)]<0){
+                 while((input>= M ) || input<0 || rowsOpen[(input)]<0){
                    printf("ERROR: Input out of range\n");
-                   printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                   printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M-1);
                    input = readInt(stdin);
                  }
                  location = (input);
@@ -322,7 +321,9 @@ int main(void)
                   x=2;
                   goto top;
             }
-           else if(x == 2){//----------------------------------------------if it is player two turn
+           else if(x == 2){
+
+             if (gameChoice == 2){//----------------------------------------------if it is player two turn
                 playerTurn = 2;
                 playerSymbol = 2;
               //  char input[1] = "0";
@@ -330,11 +331,11 @@ int main(void)
                 int location;
                  printf("player 2's turn\n");
                  player2:
-                 printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                 printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M-1);
                  input = readInt(stdin);
-                 while( ((input) > M ) || (input)<0 || rowsOpen[(input)]<0){//-------------------------------------error protocol
+                 while( ((input) >= M ) || (input)<0 || rowsOpen[(input)]<0){//-------------------------------------error protocol
                    printf("ERROR: input out of range\n");
-                   printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M);
+                   printf("Choose Column number where you want to insert (0-%d) entering a letter in anyway will cause program to end\n", M-1);
                    input = readInt(stdin);
                  }
                  location = (input);//-----------------------------------------------------------error protol
@@ -364,7 +365,87 @@ int main(void)
                   }
                  x=1;
                  goto top;
+               }
+               //------------------------------------------------------------------------do not go above this line for AI
+               printf("AI Time\n");
+               //playerSymbol = 1;
+
+               player player1;
+               player1.symbol = 1;
+               player player2;
+               player2.symbol = 2;
+               player reg;//-----------------------reg
+               reg.symbol = '\0' ;//------------reg
+               //search for win loop
+               int win = 0;
+               for (int i = 0; i<M; i++){
+                 reg.col =i;
+                 reg.row =rowsOpen[i];
+                 if(reg.row<0){
+                   continue;
+                 }
+                  player2.col = i;
+                  player2.row = rowsOpen[i];
+                  insert(board, player2);
+                  rowsOpen[i]--;
+                  win = findWinner(board, player2.symbol, rowsOpen);
+                  if(win==1){
+                    printf("Found winner - already inserted\n");
+                    displayBoard(board);
+                    rounds++;
+                    x=1;
+                    break;
+                  }
+                  else if (win == 0){
+                    printf("Found no winners\n");
+                    insert(board, reg);
+                    printf("Player 2 tried to insert at [%d][%d]\n", reg.col, reg.row);
+                    rowsOpen[i]++;
+                    continue; // 'continue' means it's going to next column
+                  }
+               }
+               if(win!=0){
+                 if (win == 1){///not working right
+                   //next person's turn
+                  //-----------------------------------------------------end of round
+                     rounds++;
+                     P2Wins++;
+                         if(P2Wins==2){//------------------------winner of 2 out 3 rounds
+                           goto end;
+                         }
+                     goto start;
+                   }
+
+                   if(win == 2){//------------------------------------------
+                     rounds++;
+                     goto start;
+                   }
+                   x=1;
+                   goto top;
+                 } //----------------------------need to
+
+
+
+               else{
+                 int randomInsert;
+                 randomInsert = rand() % M;
+                 while(rowsOpen[randomInsert]<0){
+                   randomInsert = rand() % M;
+                 }
+                 player2.col = randomInsert;
+                 player2.row = rowsOpen[randomInsert];
+                 insert(board, player2);
+                 rowsOpen[randomInsert]--;
+                 displayBoard(board);
+                 //rounds++;
+                 x=1;
+                 goto player1;
+                 //pick a random spot (later on, we'll work on blocking instead)
+               }
+                //add if winn stuff/------------------------------------------AI stuff goes here
+               return 0;
             }
+            //here
         }
         end:
         printf("Player 1 score:  %d\n", P1Wins);
@@ -376,55 +457,5 @@ int main(void)
         printf("Thank you for Playing....Goodbye!");//-------------------------------end of game
         return 0;
     }
-//     if(gameChoice==1){//-------------------------------------------------------------------------------------------------------------------one player
-//         printf("----------------1 Player mode---------------\n");
-//         printf("Choose number of rows and colums(must have a space in between)\n");
-//         scanf("%s ", input1);//---------------------------------------------------error message protocol invalid rows and col
-//         scanf("%[^\n]s", input2);
-//
-//         while( atoi(input1) < 4 || atoi(input2) < 4){
-//           printf("ERROR: Invalid input\n");
-//           return 0;
-//         }//----------need to malloc-------------------------------------------------------------------------------error message protocol invalid rows and col
-//
-//          N = atoi(input1);
-//          printf("THIS IS N %d\n", N);
-//          M = atoi(input2);
-//          printf("THIS IS M %d\n", M);
-//         start1://keep this here so it re ints the board
-//         if (rounds>1){
-//           printf("****************ROUND %d ****************\n", rounds);
-//           printf("Player 1 score:  %d\n", P1Wins);
-//           printf("Player 2 score:  %d\n", P2Wins);
-//         }
-//         player board[N][M];//-------------------------------------------------------board init
-//         for(int x = 0; x<N; x++){
-//             for(int y = 0; y<M; y++){
-//               board[x][y].symbol = '\0' ;
-//             }
-//           }
-//         while(winner != 1){
-//
-//         int playerSymbol = 0;
-//         int x = 0;
-//         int row;
-//         int rowsOpen[N];
-//         for (int i = 0; i<N; i++){
-//            rowsOpen[i]= N ;
-//         }
-//       //  top:
-//           //if(x == 0){//----------------------------------if no one has gone
-//            playerSymbol = 0;
-//             displayBoard(board);
-//             return 0;
-//             winner == 1;
-//
-//             //x=1;
-//            //goto top;
-//          //}
-//    }
-//
-//
-//     return 0;
-// }
+
 }
