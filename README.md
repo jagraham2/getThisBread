@@ -25,3 +25,4 @@ The instructions are as follows:
  Link to demonstration of player 1 functionality--->  https://youtu.be/TV8xgK3L5Y8
  Link to demonstration of player 2 functionality--->  https://youtu.be/eNzNchjQwrM
  
+Scanner Functions were provided by Dr lusth.
