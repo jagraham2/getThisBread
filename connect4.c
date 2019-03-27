@@ -220,11 +220,18 @@ int main(void)
     int P1Wins = 0;
     int P2Wins = 0;
     int rounds = 1;
-    printf("**The first player to win a series of 2 games wins overall!\n");
+    int numOfGames = 0;
+    printf("**The first player to win the majority of games wins overall!\n");
     printf("**At any time if a letter is entered the game will end\n");
     printf("**If user enters a column choice to insert that doesnt exist or is filled they will be asked to pick again\n");
     printf("**Player 1's symbol is 1 and Player 2 (and AI) symbol is 2\n\n\n");
-    printf("******HELLO WELCOME TO CONNECT 4******\n");
+    printf("********HELLO WELCOME TO CONNECT 4********\n");
+    printf("****How many games would you like to play?****(winner overall is majority of matches played must be greater than 2)\n");
+    numOfGames = readInt(stdin);
+    if(numOfGames<=2){
+      printf("ERROR: Invalid input\n");
+      return 0;
+    }
     printf("Press 1 for single player or 2 for two player!\n");
 
     gameChoice = readInt(stdin);
@@ -243,8 +250,8 @@ int main(void)
       return 0;
     }
 
-     printf("THIS IS N %d\n", N);
-     printf("THIS IS M %d\n", M);
+     //printf("THIS IS N %d\n", N);
+    // printf("THIS IS M %d\n", M);
     start://----------------------------------------------------------this is were rounds start
     if (rounds>1){
       printf("****************ROUND %d ****************\n", rounds);
@@ -323,7 +330,7 @@ int main(void)
                   if (win == 1){//-----------------------------------------------------end of round
                     rounds++;
                     P1Wins++;
-                        if(P1Wins==2){//------------------------winner of 2 out 3 rounds
+                        if(P1Wins==numOfGames-1){//------------------------winner of 2 out 3 rounds
                           goto end;
                         }
                     goto start;
@@ -363,13 +370,13 @@ int main(void)
                  insert(board, new_player);
                  rowsOpen[location]--;
                  int win = findWinner(board, new_player.symbol, rowsOpen);
-                 //printf("WINN IS %d\n", win);
+
                  displayBoard(board);//-------------------------------------part of insertion protocol
                  printf("Board after Player 2's insert\n\n");
              			if (win == 1){//-------------------------------------------------------------------------------------end of round
                     rounds++;
                     P2Wins++;
-                    if(P2Wins==2){
+                    if(P2Wins==numOfGames-1){
                       goto end;
                     }
                     goto start;
@@ -404,7 +411,7 @@ int main(void)
                   rowsOpen[i]--;
                   win = findWinner(board, player2.symbol, rowsOpen);
                   if(win==1){
-                    printf("Found winner - already inserted\n");
+                  //  printf("Found winner - already inserted\n");
                     displayBoard(board);
                     //printf("Ai's board after insert \n\n");
 
@@ -422,7 +429,7 @@ int main(void)
 
                      rounds++;
                      P2Wins++;
-                         if(P2Wins==2){//------------------------winner of 2 out 3 rounds
+                         if(P2Wins==numOfGames-1){//------------------------winner of  how many  rounds
                            goto end;
                          }
                      goto start;
@@ -437,7 +444,7 @@ int main(void)
                  } //----------------------------end of determine winner
 
                else{
-                 for (int i = 0; i<M; i++){//-----------------determines if there is a sequence for the ai to block
+                 for (int i = 0; i<M; i++){//-----------------determines if there is a sequence for the Ai to block
                    reg.col =i;
                    reg.row =rowsOpen[i];
                    if(reg.row<0){
@@ -451,26 +458,24 @@ int main(void)
                     rowsOpen[i]--;
                     block = findWinner(board, player1.symbol, rowsOpen);
                     if(block==1){
-                      printf("Found block - already inserted\n\n");
+                    //  printf("Found block - already inserted\n\n");
                       insert(board, player2);
-                        aiInsertLimit++;//ai limiter
-                      //  printf("rows open at %d after a block %d\n",i, rowsOpen[i]);
+                      aiInsertLimit++;//ai limiter
                       displayBoard(board);
-                      //printf("Ai's board after insert\n\n");
+
                       x=1;
                       break;
                     }
                     else if (block == 0){
                       insert(board, reg);
                       rowsOpen[i]++;
-                    //  printf("rows open at no %d blocks %d\n", i, rowsOpen[i]);
                       continue; // 'continue' means it's going to next column
                     }
-                 }//--------------------------------------------------------------------for loop ends
+                 }//--------------------------------------------------------------------for determining sequence to block loop ends
 
 
 
-                 int randomInsert;//---------------------------if there is no winner or sequence to block insert anywhere
+                 int randomInsert;//---------------------------if there is no possible winner or sequence to block insert anywhere
                  randomInsert = rand() % M;
                  while(rowsOpen[randomInsert]<0){
                    randomInsert = rand() % M;
@@ -481,22 +486,15 @@ int main(void)
                  insert(board, player2);
                  aiInsertLimit++;
                  rowsOpen[randomInsert]--;
-
-
-                  // printf("rows open at %d after random %d\n", randomInsert,rowsOpen[randomInsert]);
                  displayBoard(board);
                  x=1;
-                 //break;
-                 //printf("Ai's board after insert \n\n");
                }
 
-
-                 //rounds++;
                  x=1;
                  goto player1;
-                 //pick a random spot (later on, we'll work on blocking instead)
+
                }
-                //add if winn stuff/------------------------------------------AI stuff goes here
+
                return 0;
             }
             //here
@@ -507,7 +505,12 @@ int main(void)
         if(P1Wins>P2Wins){
           printf("Player 1 Wins the GAME!\n");
         }
-        else printf("Player 2 Wins the GAME!\n");
+        else if(P1Wins==P2Wins){
+          printf("Its a draw!\n");
+        }
+        else if(P2Wins>P1Wins){
+         printf("Player 2 Wins the GAME!\n");
+       }
         printf("Thank you for Playing....Goodbye!");//-------------------------------end of game
         return 0;
     }
