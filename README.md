@@ -2,7 +2,7 @@
 This is a connect 4 game that was developed in the "C" language on a windows operating system
 The player or players are first read off some basic instructions when the game has begun
 The instructions are as follows:
-    the first player to win 2 games the win overall.
+    the first player to win 2 games win overall.
     at anytime if a letter is entered the program will end.
     if the user enters a column choice that doesnt exist or is filled they will be asked to pick another number.
     Player 1's symbol is 1 and Player 2 (and AI) symbol is 2.
