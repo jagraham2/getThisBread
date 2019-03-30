@@ -1,4 +1,6 @@
 # getThisBread
+Github username: jagraham2@crimson.ua.edu
+
 This is a connect 4 game that was developed in the "C" language on a windows operating system
 The player or players are first read off some basic instructions when the game has begun
 The instructions are as follows:
